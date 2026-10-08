@@ -42,9 +42,9 @@ input,select{width:100%;background:#120f2a;border:1px solid var(--line);border-r
 .btn.danger{background:transparent;color:var(--red);border:1px solid rgba(255,77,94,.5)}
 button:disabled{opacity:.45;cursor:not-allowed}
 .nav{position:fixed;inset:auto 0 0 0;z-index:22;display:grid;grid-template-columns:repeat(4,1fr);background:#161332;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
-.nav button{background:none;border:0;color:var(--mut);font-weight:800;min-height:58px;padding:8px 4px 12px}
+.nav button{background:none;border:0;color:var(--mut);font-weight:800;min-height:54px;padding:6px 4px 10px;font-size:.78rem;line-height:1.25}
 .nav button[aria-current="page"]{color:var(--cyan)}
-body.unlocked{padding-bottom:calc(158px + env(safe-area-inset-bottom))}
+body.unlocked{padding-bottom:calc(196px + env(safe-area-inset-bottom))}
 .banner,.card,.stat,.sale{background:var(--card);border:1px solid var(--line);border-radius:16px}
 .banner,.card{padding:14px;margin:10px 0}
 .card .btn{margin-top:8px}
@@ -65,10 +65,11 @@ body.unlocked{padding-bottom:calc(158px + env(safe-area-inset-bottom))}
 .badge{position:absolute;top:8px;left:8px;background:var(--cyan);color:var(--ink);border-radius:999px;min-width:24px;height:24px;display:grid;place-items:center;font-weight:800;font-size:.85rem}
 .check{display:flex;align-items:center;gap:8px;font-weight:700}
 .check input{width:auto;min-height:0}
-#cart-bar{position:fixed;z-index:23;display:block;left:12px;right:12px;bottom:calc(70px + env(safe-area-inset-bottom));min-height:52px;border:0;border-radius:16px;background:var(--cyan);color:var(--ink);font-weight:800;padding:12px}
+#cart-bar{position:fixed;z-index:23;display:block;left:12px;right:12px;bottom:calc(118px + env(safe-area-inset-bottom));min-height:52px;border:0;border-radius:16px;background:var(--cyan);color:var(--ink);font-weight:800;padding:12px}
 #scrim{position:fixed;inset:0;z-index:25;background:rgba(8,6,20,.62);border:0;padding:0}
 #cart-panel{background:var(--card);border:1px solid var(--line);padding:12px 14px calc(14px + env(safe-area-inset-bottom));display:flex;flex-direction:column;max-height:85vh;max-height:92dvh;overflow:hidden}
-#cart-lines{overflow:auto;min-height:0;flex:1 1 auto}
+#cart-scroll{overflow:auto;min-height:0;flex:1 1 auto;max-height:calc(92dvh - 230px)}
+#cart-lines{min-height:0}
 .cinfo{min-width:0}
 .cinfo strong,.cinfo .mut{overflow-wrap:anywhere}
 .cart-foot{position:sticky;bottom:0;background:var(--card);padding-top:8px;flex:0 0 auto}
@@ -85,6 +86,15 @@ body.unlocked{padding-bottom:calc(158px + env(safe-area-inset-bottom))}
 .day{margin:16px 0 0;color:var(--mut);font-weight:800}
 .drow{display:flex;justify-content:space-between;gap:10px;margin:6px 0}
 .drow.big{font-weight:800;font-size:1.2rem;color:var(--cyan);border-top:1px solid var(--line);padding-top:8px;margin-top:8px}
+.tender-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tender-grid label{margin:0}
+.remain{font-weight:800;margin:8px 0}
+.remain.ok{color:var(--cyan)}
+.remain.bad{color:var(--red)}
+.balances{display:grid;gap:10px}
+.bal-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px}
+.bal-card strong{color:var(--cyan);font-size:1.25rem;display:block}
+.bal-card .btn{margin-top:8px}
 .prow{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
 dialog{border:1px solid var(--line);background:var(--card);color:var(--txt);border-radius:18px;width:min(440px,calc(100% - 24px));padding:16px}
 dialog::backdrop{background:rgba(8,6,20,.72)}
@@ -107,10 +117,12 @@ dialog::backdrop{background:rgba(8,6,20,.72)}
   .stats{grid-template-columns:repeat(3,1fr)}
   .stat{display:block}
   .stat strong{display:block;margin-top:4px}
+  .balances{grid-template-columns:1fr 1fr}
 }
 @media (min-width:960px){
   body.unlocked{padding-bottom:32px}
-  .nav{position:static;border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden}
+  .nav{position:static;grid-template-columns:repeat(7,1fr);border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden}
+  .nav button{font-size:.92rem}
   #cart-bar,#close-cart{display:none !important}
   .sale-layout{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}
   #cart-panel{position:sticky;top:12px;border-radius:16px;transform:none;visibility:visible;max-height:calc(100dvh - 24px)}
@@ -156,19 +168,22 @@ dialog::backdrop{background:rgba(8,6,20,.72)}
         <img src="../assets/favicon-32.png" width="42" height="42" alt="">
         <div class="grow">
           <div class="brand">الكاشير</div>
-          <div id="header-total">اليوم</div>
+          <div id="header-total" title="كاش الليرة وكاش الدولار">كاش</div>
         </div>
         <button id="lock-now" class="btn ghost" type="button">قفل</button>
       </header>
 
       <div id="backup-banner" class="banner" hidden>
-        <p>في مبيعات على هالجهاز. نزّل نسخة احتياطية حتى ما تضيع إذا انمسح المتصفح.</p>
+        <p>في حركات على هالجهاز. نزّل نسخة احتياطية حتى ما تضيع إذا انمسح المتصفح.</p>
         <button id="banner-export" class="btn primary" type="button">تنزيل نسخة</button>
       </div>
       <p id="corrupt-note" class="error" hidden>لقينا بيانات قديمة ما انقرأت، وحطيناها على جنب. إذا عندك نسخة احتياطية استرجعها من الإعدادات.</p>
 
       <nav class="nav" aria-label="أقسام الكاشير">
         <button type="button" data-tab="sale" aria-current="page">بيع</button>
+        <button type="button" data-tab="sham">شام كاش</button>
+        <button type="button" data-tab="mega">ميجا</button>
+        <button type="button" data-tab="expense">مصروف</button>
         <button type="button" data-tab="today">اليوم</button>
         <button type="button" data-tab="products">البضاعة</button>
         <button type="button" data-tab="more">إعدادات</button>
@@ -181,6 +196,12 @@ dialog::backdrop{background:rgba(8,6,20,.72)}
             <form id="quick-form" hidden>
               <label><span>الاسم</span><input id="quick-name" maxlength="80" autocomplete="off"></label>
               <label><span>السعر</span><input id="quick-price" inputmode="numeric" autocomplete="off" placeholder="رقم صحيح"></label>
+              <label><span>عملة السعر</span>
+                <select id="quick-cur">
+                  <option value="SYP">ليرة</option>
+                  <option value="USD">دولار</option>
+                </select>
+              </label>
               <label class="check"><input id="quick-save" type="checkbox"> احفظها بالقائمة</label>
               <div id="quick-cat-wrap" hidden>
                 <label><span>التصنيف</span><select id="quick-cat"></select></label>
@@ -198,17 +219,22 @@ dialog::backdrop{background:rgba(8,6,20,.72)}
               <h2>السلة</h2>
               <button id="close-cart" class="btn ghost" type="button">إغلاق</button>
             </div>
-            <div id="cart-lines"></div>
-            <div class="cart-foot">
+            <div id="cart-scroll">
+              <div id="cart-lines"></div>
               <label><span>حسم</span><input id="discount" inputmode="numeric" autocomplete="off" placeholder="0"></label>
               <p id="discount-error" class="error"></p>
-              <div class="pay" id="pay">
-                <button type="button" class="pay-btn on" data-pay="cash">كاش</button>
-                <button type="button" class="pay-btn" data-pay="transfer">تحويل</button>
-                <button type="button" class="pay-btn" data-pay="shamcash">شام كاش</button>
+              <div class="tender-grid">
+                <label><span>كاش ليرة</span><input id="tender-cash-syp" inputmode="numeric" autocomplete="off" placeholder="0"></label>
+                <label><span>كاش دولار</span><input id="tender-cash-usd" inputmode="numeric" autocomplete="off" placeholder="0"></label>
+                <label><span>شام كاش ليرة</span><input id="tender-sham-syp" inputmode="numeric" autocomplete="off" placeholder="0"></label>
+                <label><span>شام كاش دولار</span><input id="tender-sham-usd" inputmode="numeric" autocomplete="off" placeholder="0"></label>
               </div>
+              <label id="cart-rate-label"><span>سعر الدولار</span><input id="cart-rate" inputmode="numeric" autocomplete="off" placeholder="ليرة مقابل ١ دولار"></label>
               <label><span>ملاحظة</span><input id="note" maxlength="140" autocomplete="off" placeholder="اختياري، متل اسم الزبون"></label>
+            </div>
+            <div class="cart-foot">
               <div class="total-line"><span>المجموع</span><strong id="cart-total"></strong></div>
+              <p id="cart-remainder" class="remain"></p>
               <p id="cart-error" class="error"></p>
               <button id="checkout" class="btn wa" type="button">تم البيع</button>
             </div>
@@ -216,27 +242,102 @@ dialog::backdrop{background:rgba(8,6,20,.72)}
         </div>
       </section>
 
-      <section id="panel-today" hidden>
-        <div class="card" id="drawer-box">
-          <h2>الصندوق</h2>
-          <p class="hint">بس الكاش بيحرّك الصندوق. التحويل وشام كاش بيضلوا برا.</p>
-          <div id="drawer-summary"></div>
-          <div class="row">
-            <button type="button" class="btn ghost" id="drawer-open">عهدة الصباح</button>
-            <button type="button" class="btn ghost" id="drawer-in">دخلت مصاري</button>
-            <button type="button" class="btn danger" id="drawer-out">سحبت مصاري</button>
+      <section id="panel-sham" hidden>
+        <h2>شام كاش</h2>
+        <p id="sham-balances" class="hint"></p>
+        <div class="chips" id="sham-modes">
+          <button type="button" class="chip on" data-sham="send">إرسال للزبون</button>
+          <button type="button" class="chip" data-sham="receive">استقبال من الزبون</button>
+          <button type="button" class="chip" data-sham="bill">دفع فاتورة</button>
+          <button type="button" class="chip" data-sham="mega">شحن ميجا</button>
+          <button type="button" class="chip" data-sham="expense">مصروف شخصي</button>
+        </div>
+        <form id="sham-form" class="card" autocomplete="off">
+          <div class="pay" id="sham-cur">
+            <button type="button" class="pay-btn on" data-sham-cur="SYP">ليرة</button>
+            <button type="button" class="pay-btn" data-sham-cur="USD">دولار</button>
           </div>
-          <div id="drawer-moves"></div>
-        </div>
-        <h2>المبيعات</h2>
-        <p class="hint">كل المبيعات مع بعض: كاش وتحويل وشام كاش.</p>
-        <div class="stats">
-          <article class="stat"><span>اليوم</span><strong id="stat-today"></strong></article>
-          <article class="stat"><span>آخر ٧ أيام</span><strong id="stat-week"></strong></article>
-          <article class="stat"><span>آخر ٣٠ يوم</span><strong id="stat-month"></strong></article>
-        </div>
-        <p id="pay-break" class="hint"></p>
-        <div id="sales-list"></div>
+          <label><span id="sham-amount-label">المبلغ</span><input id="sham-amount" inputmode="numeric" autocomplete="off" placeholder="رقم صحيح"></label>
+          <div id="sham-commission-box">
+            <p id="sham-rate-line" class="hint"></p>
+            <label><span>العمولة</span><input id="sham-commission" inputmode="numeric" autocomplete="off" placeholder="تقدر تعدّلها"></label>
+            <p class="hint">١.٥٪ على المليون ليرة أو ١٠٠ دولار، و٣٪ على ١٠٠ ألف ليرة. فينا نعدّل الرقم.</p>
+          </div>
+          <p id="sham-owed" class="remain"></p>
+          <div id="sham-cash-box" class="tender-grid">
+            <label><span id="sham-syp-label">كاش ليرة</span><input id="sham-cash-syp" inputmode="numeric" autocomplete="off" placeholder="0"></label>
+            <label><span id="sham-usd-label">كاش دولار</span><input id="sham-cash-usd" inputmode="numeric" autocomplete="off" placeholder="0"></label>
+          </div>
+          <div id="sham-rate-box">
+            <label><span>سعر الدولار</span><input id="sham-rate" inputmode="numeric" autocomplete="off" placeholder="ليرة مقابل ١ دولار"></label>
+          </div>
+          <label id="sham-note-label"><span id="sham-note-caption">ملاحظة</span><input id="sham-note" maxlength="140" autocomplete="off" placeholder="اختياري"></label>
+          <p id="sham-preview" class="remain"></p>
+          <p id="sham-error" class="error"></p>
+          <button id="sham-submit" class="btn primary" type="submit">تأكيد</button>
+        </form>
+      </section>
+
+      <section id="panel-mega" hidden>
+        <h2>ميجا</h2>
+        <p id="mega-balance" class="hint"></p>
+        <form id="mega-form" class="card" autocomplete="off">
+          <div class="chips" id="mega-kinds">
+            <button type="button" class="chip on" data-mega-kind="شحن رصيد">شحن رصيد</button>
+            <button type="button" class="chip" data-mega-kind="فاتورة">فاتورة</button>
+            <button type="button" class="chip" data-mega-kind="شحن لعبة">شحن لعبة</button>
+          </div>
+          <label><span>رصيد ميجا (بيطلع من ميجا)</span><input id="mega-out" inputmode="numeric" autocomplete="off" placeholder="بالليرة"></label>
+          <div class="pay" id="mega-cur">
+            <button type="button" class="pay-btn on" data-mega-cur="SYP">سعر الزبون بالليرة</button>
+            <button type="button" class="pay-btn" data-mega-cur="USD">سعر الزبون بالدولار</button>
+          </div>
+          <label><span>سعر الزبون</span><input id="mega-price" inputmode="numeric" autocomplete="off" placeholder="رقم صحيح"></label>
+          <div class="tender-grid">
+            <label><span>كاش ليرة</span><input id="mega-cash-syp" inputmode="numeric" autocomplete="off" placeholder="0"></label>
+            <label><span>كاش دولار</span><input id="mega-cash-usd" inputmode="numeric" autocomplete="off" placeholder="0"></label>
+            <label><span>شام كاش ليرة</span><input id="mega-sham-syp" inputmode="numeric" autocomplete="off" placeholder="0"></label>
+            <label><span>شام كاش دولار</span><input id="mega-sham-usd" inputmode="numeric" autocomplete="off" placeholder="0"></label>
+          </div>
+          <label id="mega-rate-label"><span>سعر الدولار</span><input id="mega-rate" inputmode="numeric" autocomplete="off" placeholder="ليرة مقابل ١ دولار"></label>
+          <label><span>ملاحظة</span><input id="mega-note" maxlength="140" autocomplete="off" placeholder="اختياري"></label>
+          <p id="mega-remainder" class="remain"></p>
+          <p id="mega-warn" class="error"></p>
+          <button id="mega-submit" class="btn primary" type="submit">تأكيد</button>
+        </form>
+      </section>
+
+      <section id="panel-expense" hidden>
+        <h2>مصروف</h2>
+        <p class="hint">من كاش الليرة أو الدولار، أو من شام كاش. ميجا مو لهون.</p>
+        <form id="expense-form" class="card" autocomplete="off">
+          <div class="chips" id="exp-sources">
+            <button type="button" class="chip on" data-exp-source="cashSyp">كاش ليرة</button>
+            <button type="button" class="chip" data-exp-source="cashUsd">كاش دولار</button>
+            <button type="button" class="chip" data-exp-source="shamSyp">شام كاش ليرة</button>
+            <button type="button" class="chip" data-exp-source="shamUsd">شام كاش دولار</button>
+          </div>
+          <p id="exp-balance" class="hint"></p>
+          <div class="chips" id="exp-kinds">
+            <button type="button" class="chip on" data-exp-kind="شخصي">شخصي</button>
+            <button type="button" class="chip" data-exp-kind="كهرباء">كهرباء</button>
+            <button type="button" class="chip" data-exp-kind="ماء">ماء</button>
+            <button type="button" class="chip" data-exp-kind="غير ذلك">غير ذلك</button>
+          </div>
+          <label><span>المبلغ</span><input id="exp-amount" inputmode="numeric" autocomplete="off" placeholder="رقم صحيح"></label>
+          <label><span>ملاحظة</span><input id="exp-note" maxlength="140" autocomplete="off" placeholder="اختياري"></label>
+          <p id="exp-warn" class="error"></p>
+          <button class="btn primary" type="submit">سجّل المصروف</button>
+        </form>
+      </section>
+
+      <section id="panel-today" hidden>
+        <h2>الأرصدة</h2>
+        <p class="hint">الرصيد هو العهدة زائد الحركات من وقت ما انحفظت. الحركات القديمة بتضل بالسجل.</p>
+        <p id="today-rate" class="hint"></p>
+        <div id="balance-cards" class="balances"></div>
+        <h2>الحركات</h2>
+        <div id="move-list"></div>
       </section>
 
       <section id="panel-products" hidden>
@@ -248,7 +349,7 @@ dialog::backdrop{background:rgba(8,6,20,.72)}
       <section id="panel-more" hidden>
         <h2>إعدادات</h2>
         <div class="card">
-          <p>الحسابات بتضل على هالجهاز وما بتنبعت عالإنترنت. إذا مسحت بيانات المتصفح، المبيعات بتروح. نزّل نسخة كل كم يوم وخبّيها.</p>
+          <p>الحسابات بتضل على هالجهاز وما بتنبعت عالإنترنت. إذا مسحت بيانات المتصفح، الحركات بتروح. نزّل نسخة كل كم يوم وخبّيها.</p>
           <p class="hint">بعد أول فتح، الكاشير بيكمّل يشتغل حتى لو النت قطع.</p>
           <p id="export-status" class="hint"></p>
           <button id="export-btn" class="btn primary" type="button">تنزيل نسخة احتياطية</button>
@@ -256,18 +357,16 @@ dialog::backdrop{background:rgba(8,6,20,.72)}
           <input id="import-file" type="file" accept="application/json,.json" hidden>
         </div>
         <div class="card">
-          <p>العملة</p>
-          <div class="pay" id="currency">
-            <button type="button" class="pay-btn on" data-currency="SYP">ليرة سورية</button>
-            <button type="button" class="pay-btn" data-currency="USD">دولار</button>
-          </div>
-          <p class="hint">إذا غيّرت العملة، الأرقام القديمة ما بتتحوّل لحالا. بس بيتغير الاسم.</p>
+          <p>سعر الدولار</p>
+          <label><span>كم ليرة مقابل ١ دولار</span><input id="usd-rate" inputmode="numeric" autocomplete="off" placeholder="مثلاً ١٠٠٠٠"></label>
+          <p id="rate-error" class="error"></p>
+          <p id="rate-status" class="hint">بنستخدمه لما الدفع يخلط ليرة ودولار. إذا فاضي ما منخمّن سعر.</p>
         </div>
         <div class="card">
           <button id="lock-more" class="btn ghost" type="button">قفل الكاشير</button>
         </div>
         <div class="card">
-          <p>مسح كل البضاعة والمبيعات من هالجهاز.</p>
+          <p>مسح كل البضاعة والحركات من هالجهاز.</p>
           <label><span>اكتب كلمة مسح للتأكيد</span><input id="wipe-word" autocomplete="off"></label>
           <button id="wipe-btn" class="btn danger" type="button" disabled>مسح كل شي</button>
         </div>
@@ -287,15 +386,15 @@ dialog::backdrop{background:rgba(8,6,20,.72)}
       </div>
     </dialog>
 
-    <dialog id="drawer-dialog">
-      <form id="drawer-form" autocomplete="off">
-        <h2 id="drawer-title">الصندوق</h2>
-        <label><span>المبلغ</span><input id="drawer-amount" inputmode="numeric" autocomplete="off" placeholder="رقم صحيح"></label>
-        <label><span>ملاحظة</span><input id="drawer-note" maxlength="140" autocomplete="off" placeholder="اختياري"></label>
-        <p id="drawer-error" class="error"></p>
+    <dialog id="opening-dialog">
+      <form id="opening-form" autocomplete="off">
+        <h2 id="opening-title">العهدة</h2>
+        <p class="hint">حط المبلغ الموجود فعلاً. من هاللحظة بنبلّش منه، والحركات الجاية بتنضاف أو بتنقص.</p>
+        <label><span>المبلغ</span><input id="opening-amount" inputmode="numeric" autocomplete="off" placeholder="رقم صحيح"></label>
+        <p id="opening-error" class="error"></p>
         <div class="row">
           <button class="btn primary" type="submit">حفظ</button>
-          <button id="drawer-cancel" class="btn ghost" type="button">إلغاء</button>
+          <button id="opening-cancel" class="btn ghost" type="button">إلغاء</button>
         </div>
       </form>
     </dialog>
@@ -305,6 +404,12 @@ dialog::backdrop{background:rgba(8,6,20,.72)}
         <h2 id="product-title">قطعة</h2>
         <label><span>الاسم</span><input id="pf-name" maxlength="80"></label>
         <label><span>السعر</span><input id="pf-price" inputmode="numeric" placeholder="رقم صحيح"></label>
+        <label><span>عملة السعر</span>
+          <select id="pf-cur">
+            <option value="SYP">ليرة</option>
+            <option value="USD">دولار</option>
+          </select>
+        </label>
         <label><span>التصنيف</span><select id="pf-cat"></select></label>
         <label><span>الكمية بالمحل</span><input id="pf-stock" inputmode="numeric" placeholder="فاضي يعني ما منعد"></label>
         <p id="pf-error" class="error"></p>
