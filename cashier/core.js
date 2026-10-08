@@ -37,6 +37,7 @@
       currency: "SYP",
       products: [],
       sales: [],
+      movements: [],
       lastExportAt: null
     };
   }
@@ -321,6 +322,24 @@
     };
   }
 
+  function sanitizeMovement(input) {
+    if (!input || typeof input !== "object") return null;
+    const kind = input.kind === "open" || input.kind === "in" || input.kind === "out" ? input.kind : null;
+    if (!kind) return null;
+    const amount = validatePrice(input.amount);
+    if (amount == null) return null;
+    if (kind !== "open" && amount === 0) return null;
+    const at = Number(input.at);
+    if (!Number.isFinite(at) || at < MIN_AT || at > Date.now() + 2 * 86400000) return null;
+    return {
+      id: typeof input.id === "string" && input.id.trim() ? input.id.trim().slice(0, 40) : newId(),
+      at: at,
+      kind: kind,
+      amount: amount,
+      note: typeof input.note === "string" ? input.note.trim().slice(0, 140) : ""
+    };
+  }
+
   function uniquify(items) {
     const seen = new Set();
     return items.map(function (item) {
@@ -335,14 +354,19 @@
     if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("bad-backup");
     if (data.version !== 1) throw new Error("bad-version");
     if (!Array.isArray(data.products) || !Array.isArray(data.sales)) throw new Error("bad-backup");
+    const rawMovements = data.movements == null ? [] : data.movements;
+    if (!Array.isArray(rawMovements)) throw new Error("bad-backup");
     const products = uniquify(data.products.map(sanitizeProduct).filter(Boolean));
     const sales = uniquify(data.sales.map(sanitizeSale).filter(Boolean));
+    const movements = uniquify(rawMovements.map(sanitizeMovement).filter(Boolean));
     return {
       currency: data.currency === "USD" ? "USD" : "SYP",
       products: products,
       sales: sales,
+      movements: movements,
       droppedProducts: data.products.length - products.length,
-      droppedSales: data.sales.length - sales.length
+      droppedSales: data.sales.length - sales.length,
+      droppedMovements: rawMovements.length - movements.length
     };
   }
 
@@ -352,7 +376,8 @@
       version: 1,
       currency: parsed.currency,
       products: Array.isArray(parsed.products) ? parsed.products : [],
-      sales: Array.isArray(parsed.sales) ? parsed.sales : []
+      sales: Array.isArray(parsed.sales) ? parsed.sales : [],
+      movements: Array.isArray(parsed.movements) ? parsed.movements : []
     });
     const pinHash = typeof parsed.pinHash === "string" && /^[a-f0-9]{64}$/.test(parsed.pinHash)
       ? parsed.pinHash
@@ -364,6 +389,7 @@
       currency: backup.currency,
       products: backup.products,
       sales: backup.sales,
+      movements: backup.movements,
       lastExportAt: lastExportAt
     };
   }
@@ -403,6 +429,70 @@
       out[key] += saleTotals(sale).total;
     });
     return out;
+  }
+
+  function drawerDay(sales, movements, from, to) {
+    const pay = payBreakdown(sales, from, to);
+    let opening = null;
+    let moneyIn = 0;
+    let moneyOut = 0;
+    const manual = [];
+    (movements || []).slice().sort(function (a, b) { return a.at - b.at; }).forEach(function (move) {
+      if (!move || move.at < from || move.at >= to) return;
+      if (move.kind === "open") opening = move.amount;
+      else if (move.kind === "in") moneyIn += move.amount;
+      else if (move.kind === "out") moneyOut += move.amount;
+      else return;
+      manual.push(move);
+    });
+    return {
+      opening: opening,
+      cashSales: pay.cash,
+      moneyIn: moneyIn,
+      moneyOut: moneyOut,
+      expected: (opening == null ? 0 : opening) + pay.cash + moneyIn - moneyOut,
+      transfer: pay.transfer,
+      shamcash: pay.shamcash,
+      manual: manual
+    };
+  }
+
+  function setOpening(movements, amount, now, note) {
+    const parsed = validatePrice(amount);
+    if (parsed == null) return { error: "amount", movements: movements || [] };
+    const at = Number.isFinite(now) ? now : Date.now();
+    const from = startOfDay(at);
+    const to = addDays(from, 1);
+    const next = (movements || []).filter(function (move) {
+      return !(move.kind === "open" && move.at >= from && move.at < to);
+    });
+    next.push({
+      id: newId(),
+      at: at,
+      kind: "open",
+      amount: parsed,
+      note: typeof note === "string" ? note.trim().slice(0, 140) : ""
+    });
+    return { movements: next };
+  }
+
+  function addDrawerMove(movements, kind, amount, now, note) {
+    if (kind !== "in" && kind !== "out") return { error: "kind", movements: movements || [] };
+    const parsed = validatePrice(amount);
+    if (parsed == null || parsed === 0) return { error: "amount", movements: movements || [] };
+    const next = (movements || []).slice();
+    next.push({
+      id: newId(),
+      at: Number.isFinite(now) ? now : Date.now(),
+      kind: kind,
+      amount: parsed,
+      note: typeof note === "string" ? note.trim().slice(0, 140) : ""
+    });
+    return { movements: next };
+  }
+
+  function removeDrawerMove(movements, id) {
+    return (movements || []).filter(function (move) { return move.id !== id; });
   }
 
   function groupByDay(sales) {
@@ -497,6 +587,10 @@
     sumSales: sumSales,
     countSales: countSales,
     payBreakdown: payBreakdown,
+    drawerDay: drawerDay,
+    setOpening: setOpening,
+    addDrawerMove: addDrawerMove,
+    removeDrawerMove: removeDrawerMove,
     groupByDay: groupByDay,
     sortProducts: sortProducts,
     filterProducts: filterProducts,

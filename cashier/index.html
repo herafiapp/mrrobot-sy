@@ -83,6 +83,8 @@ body.unlocked{padding-bottom:calc(158px + env(safe-area-inset-bottom))}
 .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .tag{color:var(--red);font-weight:800;align-self:center}
 .day{margin:16px 0 0;color:var(--mut);font-weight:800}
+.drow{display:flex;justify-content:space-between;gap:10px;margin:6px 0}
+.drow.big{font-weight:800;font-size:1.2rem;color:var(--cyan);border-top:1px solid var(--line);padding-top:8px;margin-top:8px}
 .prow{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
 dialog{border:1px solid var(--line);background:var(--card);color:var(--txt);border-radius:18px;width:min(440px,calc(100% - 24px));padding:16px}
 dialog::backdrop{background:rgba(8,6,20,.72)}
@@ -215,7 +217,19 @@ dialog::backdrop{background:rgba(8,6,20,.72)}
       </section>
 
       <section id="panel-today" hidden>
+        <div class="card" id="drawer-box">
+          <h2>الصندوق</h2>
+          <p class="hint">بس الكاش بيحرّك الصندوق. التحويل وشام كاش بيضلوا برا.</p>
+          <div id="drawer-summary"></div>
+          <div class="row">
+            <button type="button" class="btn ghost" id="drawer-open">عهدة الصباح</button>
+            <button type="button" class="btn ghost" id="drawer-in">دخلت مصاري</button>
+            <button type="button" class="btn danger" id="drawer-out">سحبت مصاري</button>
+          </div>
+          <div id="drawer-moves"></div>
+        </div>
         <h2>المبيعات</h2>
+        <p class="hint">كل المبيعات مع بعض: كاش وتحويل وشام كاش.</p>
         <div class="stats">
           <article class="stat"><span>اليوم</span><strong id="stat-today"></strong></article>
           <article class="stat"><span>آخر ٧ أيام</span><strong id="stat-week"></strong></article>
@@ -271,6 +285,19 @@ dialog::backdrop{background:rgba(8,6,20,.72)}
         <button id="share-receipt" class="btn ghost" type="button">مشاركة</button>
         <button id="close-receipt" class="btn primary" type="button">إغلاق</button>
       </div>
+    </dialog>
+
+    <dialog id="drawer-dialog">
+      <form id="drawer-form" autocomplete="off">
+        <h2 id="drawer-title">الصندوق</h2>
+        <label><span>المبلغ</span><input id="drawer-amount" inputmode="numeric" autocomplete="off" placeholder="رقم صحيح"></label>
+        <label><span>ملاحظة</span><input id="drawer-note" maxlength="140" autocomplete="off" placeholder="اختياري"></label>
+        <p id="drawer-error" class="error"></p>
+        <div class="row">
+          <button class="btn primary" type="submit">حفظ</button>
+          <button id="drawer-cancel" class="btn ghost" type="button">إلغاء</button>
+        </div>
+      </form>
     </dialog>
 
     <dialog id="product-dialog">

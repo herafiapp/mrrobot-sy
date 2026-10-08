@@ -217,6 +217,56 @@ test("a saved sale survives a reload", function () {
   assert.equal(stored.sales[0].items[0].name, "سماعة");
 });
 
+test("the drawer only moves with cash", function () {
+  const now = Date.UTC(2024, 9, 8, 15, 0);
+  const day = C.startOfDay(now);
+  const end = C.addDays(day, 1);
+  const cash = C.checkout({
+    cart: [{ name: "شاحن", price: 15000, qty: 1 }],
+    payMethod: "cash",
+    now: now,
+    id: "cash-sale"
+  }).sale;
+  const transfer = C.checkout({
+    cart: [{ name: "كبل", price: 8000, qty: 1 }],
+    payMethod: "transfer",
+    now: now + 1000,
+    id: "transfer-sale"
+  }).sale;
+  const sales = [cash, transfer];
+  let snap = C.drawerDay(sales, [], day, end);
+  assert.equal(snap.cashSales, 15000);
+  assert.equal(snap.transfer, 8000);
+  assert.equal(snap.expected, 15000);
+
+  let movements = C.setOpening([], "50,000", now, "صباح").movements;
+  movements = C.addDrawerMove(movements, "out", 10000, now + 2000, "غدا").movements;
+  movements = C.addDrawerMove(movements, "in", 5000, now + 3000, "فكة").movements;
+  snap = C.drawerDay(sales, movements, day, end);
+  assert.equal(snap.opening, 50000);
+  assert.equal(snap.expected, 50000 + 15000 + 5000 - 10000);
+
+  const again = C.setOpening(movements, 40000, now + 4000, "");
+  assert.equal(again.movements.filter(function (move) { return move.kind === "open"; }).length, 1);
+  snap = C.drawerDay(sales, again.movements, day, end);
+  assert.equal(snap.opening, 40000);
+
+  const voided = C.voidSale({ sales: sales, products: [] }, "cash-sale");
+  snap = C.drawerDay(voided.data.sales, again.movements, day, end);
+  assert.equal(snap.cashSales, 0);
+  assert.equal(snap.transfer, 8000);
+  assert.equal(snap.expected, 40000 + 5000 - 10000);
+
+  const kept = C.sanitizeStored({
+    sales: sales,
+    products: [],
+    movements: movements
+  });
+  assert.equal(kept.movements.length, 3);
+  const oldFile = C.sanitizeBackup({ version: 1, products: [], sales: [] });
+  assert.deepEqual(oldFile.movements, []);
+});
+
 test("search respects the category", function () {
   const products = [
     { id: "1", name: "شاحن سامسونج", price: 1, category: "شواحن", stock: null },

@@ -264,7 +264,8 @@
 
   function renderHeader() {
     const range = todayRange(Date.now()).today;
-    $("header-total").textContent = "اليوم " + money(C.sumSales(state.data.sales, range[0], range[1]));
+    const drawer = C.drawerDay(state.data.sales, state.data.movements || [], range[0], range[1]);
+    $("header-total").textContent = "الصندوق " + money(drawer.expected);
   }
 
   function needsBackup() {
@@ -596,7 +597,8 @@
     $("stat-week").textContent = money(C.sumSales(state.data.sales, range.week[0], range.week[1]));
     $("stat-month").textContent = money(C.sumSales(state.data.sales, range.month[0], range.month[1]));
     const breakdown = C.payBreakdown(state.data.sales, range.today[0], range.today[1]);
-    $("pay-break").textContent = "اليوم: " + C.PAY_METHODS.map(function (item) {
+    renderDrawer(range.today);
+    $("pay-break").textContent = "توزيع المبيعات: " + C.PAY_METHODS.map(function (item) {
       return item.label + " " + money(breakdown[item.id]);
     }).join(" · ");
     const recent = state.data.sales
@@ -640,7 +642,10 @@
   function onVoid(id) {
     const sale = state.data.sales.find(function (item) { return item.id === id; });
     if (!sale || sale.voided) return;
-    if (!window.confirm("بدك تلغي هالبيع (" + money(sale.total) + ")؟ إذا الكمية محسوبة بترجع للمخزون.")) return;
+    const cashNote = sale.payMethod === "cash"
+      ? " البيع كاش، فالمبلغ بينقص من الصندوق."
+      : " البيع مو كاش، الصندوق ما بيتغير.";
+    if (!window.confirm("بدك تلغي هالبيع (" + money(sale.total) + ")؟" + cashNote + " إذا الكمية محسوبة بترجع للمخزون.")) return;
     const result = C.voidSale(state.data, id);
     if (result.error) return;
     const previous = state.data;
@@ -751,7 +756,8 @@
       exportedAt: new Date().toISOString(),
       currency: state.data.currency,
       products: state.data.products,
-      sales: state.data.sales
+      sales: state.data.sales,
+      movements: state.data.movements || []
     };
     const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
     const link = document.createElement("a");
@@ -795,7 +801,8 @@
       state.data = Object.assign({}, state.data, {
         currency: clean.currency,
         products: clean.products,
-        sales: clean.sales
+        sales: clean.sales,
+        movements: clean.movements || []
       });
       state.cart = [];
       $("discount").value = "";
@@ -833,6 +840,96 @@
     sessionStorage.removeItem("mrrobot-attempts");
     sessionStorage.removeItem("mrrobot-lockout");
     location.reload();
+  }
+
+  function renderDrawer(range) {
+    const snap = C.drawerDay(state.data.sales, state.data.movements || [], range[0], range[1]);
+    const summary = $("drawer-summary");
+    summary.replaceChildren();
+    function row(label, value, big) {
+      summary.append(el("div", { class: big ? "drow big" : "drow" },
+        el("span", { text: label }),
+        el("strong", { text: value })
+      ));
+    }
+    row("عهدة الصباح", snap.opening == null ? "ما انحطت" : money(snap.opening));
+    row("مبيعات كاش", money(snap.cashSales));
+    row("دخلت للصندوق", money(snap.moneyIn));
+    row("طلع من الصندوق", money(snap.moneyOut));
+    row("المفروض بالصندوق", money(snap.expected), true);
+    if (snap.transfer || snap.shamcash) {
+      summary.append(el("p", {
+        class: "hint",
+        text: "برا الصندوق: تحويل " + money(snap.transfer) + " · شام كاش " + money(snap.shamcash)
+      }));
+    }
+    const moves = $("drawer-moves");
+    moves.replaceChildren();
+    snap.manual.slice().sort(function (a, b) { return b.at - a.at; }).forEach(function (move) {
+      const label = move.kind === "open" ? "عهدة" : move.kind === "in" ? "دخل" : "طلع";
+      const sign = move.kind === "out" ? "−" : "";
+      const remove = el("button", { type: "button", class: "btn ghost", text: "شيل" });
+      remove.addEventListener("click", function () { onRemoveMove(move.id); });
+      moves.append(el("div", { class: "prow" },
+        el("div", {},
+          el("strong", { text: label + " " + sign + money(move.amount) }),
+          el("div", { class: "mut", text: C.formatStamp(move.at) + (move.note ? " · " + move.note : "") })
+        ),
+        remove
+      ));
+    });
+  }
+
+  function openDrawerForm(kind) {
+    state.drawerKind = kind;
+    const titles = {
+      open: "عهدة الصباح",
+      in: "مصاري دخلت الصندوق",
+      out: "مصاري طلعت من الصندوق"
+    };
+    $("drawer-title").textContent = titles[kind] || "الصندوق";
+    $("drawer-amount").value = "";
+    $("drawer-note").value = "";
+    $("drawer-error").textContent = "";
+    if (!$("drawer-dialog").open) $("drawer-dialog").showModal();
+    $("drawer-amount").focus();
+  }
+
+  function onDrawerSubmit(event) {
+    event.preventDefault();
+    const note = $("drawer-note").value;
+    const amount = $("drawer-amount").value;
+    const current = state.data.movements || [];
+    const result = state.drawerKind === "open"
+      ? C.setOpening(current, amount, Date.now(), note)
+      : C.addDrawerMove(current, state.drawerKind, amount, Date.now(), note);
+    if (result.error) {
+      $("drawer-error").textContent = "اكتب المبلغ رقم صحيح.";
+      return;
+    }
+    const previous = state.data.movements;
+    state.data.movements = result.movements;
+    if (!save()) {
+      state.data.movements = previous;
+      return;
+    }
+    $("drawer-dialog").close();
+    renderHeader();
+    renderToday();
+    toast("انسجّلت حركة الصندوق.");
+  }
+
+  function onRemoveMove(id) {
+    if (!window.confirm("بدك تشيل هالحركة من الصندوق؟")) return;
+    const previous = state.data.movements;
+    state.data.movements = C.removeDrawerMove(state.data.movements || [], id);
+    if (!save()) {
+      state.data.movements = previous;
+      return;
+    }
+    renderHeader();
+    renderToday();
+    toast("انشالت الحركة.");
   }
 
   function renderAll() {
@@ -913,6 +1010,11 @@
       $("wipe-btn").disabled = $("wipe-word").value.trim() !== "مسح";
     });
     $("wipe-btn").addEventListener("click", wipe);
+    $("drawer-open").addEventListener("click", function () { openDrawerForm("open"); });
+    $("drawer-in").addEventListener("click", function () { openDrawerForm("in"); });
+    $("drawer-out").addEventListener("click", function () { openDrawerForm("out"); });
+    $("drawer-form").addEventListener("submit", onDrawerSubmit);
+    $("drawer-cancel").addEventListener("click", function () { $("drawer-dialog").close(); });
     document.querySelector(".nav").addEventListener("click", function (event) {
       const button = event.target.closest("[data-tab]");
       if (!button) return;

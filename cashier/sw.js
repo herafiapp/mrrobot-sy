@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE = "mrrobot-cashier-v1";
+const CACHE = "mrrobot-cashier-v2";
 const FILES = ["./index.html", "./app.js", "./core.js"];
 
 self.addEventListener("install", function (event) {
