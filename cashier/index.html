@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#120f2a">
+<title>الكاشير | Mr. Robot مستر روبوت</title>
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+<style>
+:root{--bg:#120f2a;--card:#1c1840;--line:#2e2862;--txt:#f2f1fb;--mut:#b9b5d8;--cyan:#41f0e0;--red:#ff4d5e;--wa:#25d366;--ink:#06221f}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:radial-gradient(120% 60% at 50% 0,#251f57 0,var(--bg) 60%) fixed,var(--bg);color:var(--txt);font-family:"Segoe UI",Tahoma,"Noto Sans Arabic","Noto Naskh Arabic",system-ui,-apple-system,sans-serif;line-height:1.6}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.wrap{max-width:1100px;margin:0 auto;padding:12px 14px 0}
+h1,h2,p{margin:0}
+h2{font-size:1.15rem;margin:8px 0 12px}
+.mut{color:var(--mut);font-size:.92rem}
+.hint{color:var(--mut);font-size:.92rem;margin-top:8px}
+.error{color:var(--red);font-weight:700;min-height:1.2em;margin:6px 0}
+#lock{min-height:100vh;min-height:100dvh;display:grid;place-items:center;padding:24px 16px}
+.lock-card{width:min(420px,100%);text-align:center}
+.logo{width:min(48vw,180px);height:auto;border-radius:22px;box-shadow:0 0 0 1px var(--line),0 10px 40px rgba(65,240,224,.18);margin:0 auto 16px;display:block}
+header{display:flex;align-items:center;gap:10px;padding:6px 0 12px}
+header img{width:42px;height:42px;border-radius:10px}
+.grow{flex:1}
+.brand{font-weight:800}
+#header-total{color:var(--cyan);font-weight:800}
+label{display:block;font-weight:700;margin:10px 0;text-align:right}
+label span{display:block;color:var(--mut);font-size:.92rem;margin-bottom:6px}
+input,select{width:100%;background:#120f2a;border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-height:48px}
+.btn{border:0;border-radius:14px;min-height:48px;padding:10px 14px;font-weight:800}
+.btn.primary{background:var(--cyan);color:var(--ink)}
+.btn.wa{background:var(--wa);color:#06321a;width:100%}
+.btn.ghost{background:transparent;border:1px solid var(--line)}
+.btn.danger{background:transparent;color:var(--red);border:1px solid rgba(255,77,94,.5)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.nav{position:fixed;inset:auto 0 0 0;z-index:22;display:grid;grid-template-columns:repeat(4,1fr);background:#161332;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.nav button{background:none;border:0;color:var(--mut);font-weight:800;min-height:54px;padding:6px 4px 10px;font-size:.78rem;line-height:1.25}
+.nav button[aria-current="page"]{color:var(--cyan)}
+body.unlocked{padding-bottom:calc(196px + env(safe-area-inset-bottom))}
+.banner,.card,.stat,.sale{background:var(--card);border:1px solid var(--line);border-radius:16px}
+.banner,.card{padding:14px;margin:10px 0}
+.card .btn{margin-top:8px}
+.stats{display:grid;gap:10px}
+.stat{display:flex;justify-content:space-between;align-items:baseline;padding:14px}
+.stat strong{color:var(--cyan);font-size:1.15rem}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px}
+.chip,.pay-btn{flex:none;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--mut);padding:8px 14px;min-height:40px;font-weight:800}
+.chip.on,.pay-btn.on{background:var(--cyan);color:var(--ink);border-color:var(--cyan)}
+.pay{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.products{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.products>.hint{grid-column:1 / -1}
+.product{position:relative;text-align:right;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;min-height:96px}
+.product.out{opacity:.72}
+.pname{display:block;font-weight:800}
+.price{display:block;color:var(--cyan);font-weight:800;margin-top:4px}
+.stock{display:block;color:var(--mut);font-size:.85rem}
+.badge{position:absolute;top:8px;left:8px;background:var(--cyan);color:var(--ink);border-radius:999px;min-width:24px;height:24px;display:grid;place-items:center;font-weight:800;font-size:.85rem}
+.check{display:flex;align-items:center;gap:8px;font-weight:700}
+.check input{width:auto;min-height:0}
+#cart-bar{position:fixed;z-index:23;display:block;left:12px;right:12px;bottom:calc(118px + env(safe-area-inset-bottom));min-height:52px;border:0;border-radius:16px;background:var(--cyan);color:var(--ink);font-weight:800;padding:12px}
+#scrim{position:fixed;inset:0;z-index:25;background:rgba(8,6,20,.62);border:0;padding:0}
+#cart-panel{background:var(--card);border:1px solid var(--line);padding:12px 14px calc(14px + env(safe-area-inset-bottom));display:flex;flex-direction:column;max-height:85vh;max-height:92dvh;overflow:hidden}
+#cart-scroll{overflow:auto;min-height:0;flex:1 1 auto}
+#cart-lines{min-height:0}
+.cinfo{min-width:0}
+.cinfo strong,.cinfo .mut{overflow-wrap:anywhere}
+.cart-foot{position:sticky;bottom:0;background:var(--card);padding-top:8px;flex:0 0 auto}
+.cline{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.cqty{display:flex;align-items:center;gap:6px;flex:none}
+.cqty button{min-width:40px;min-height:40px;border-radius:10px;border:1px solid var(--line);background:transparent;font-weight:800}
+.cart-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.total-line{display:flex;justify-content:space-between;font-weight:800;font-size:1.15rem;margin:8px 0}
+.total-line strong{color:var(--cyan)}
+.sale{padding:12px;margin:10px 0}
+.sale.voided{opacity:.65}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.tag{color:var(--red);font-weight:800;align-self:center}
+.day{margin:16px 0 0;color:var(--mut);font-weight:800}
+.drow{display:flex;justify-content:space-between;gap:10px;margin:6px 0}
+.drow.big{font-weight:800;font-size:1.2rem;color:var(--cyan);border-top:1px solid var(--line);padding-top:8px;margin-top:8px}
+.tender-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tender-grid label{margin:0}
+.remain{font-weight:800;margin:8px 0}
+.remain.ok{color:var(--cyan)}
+.remain.bad{color:var(--red)}
+.balances{display:grid;gap:10px}
+.bal-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px}
+.bal-card strong{color:var(--cyan);font-size:1.25rem;display:block}
+.bal-card .btn{margin-top:8px}
+.prow{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+dialog{border:1px solid var(--line);background:var(--card);color:var(--txt);border-radius:18px;width:min(440px,calc(100% - 24px));padding:16px}
+dialog::backdrop{background:rgba(8,6,20,.72)}
+.receipt-paper{background:#fff;color:#1a1a1a;border-radius:12px;padding:16px;margin-bottom:12px}
+.receipt-paper .r-shop,.receipt-paper .r-center{text-align:center}
+.receipt-paper .r-shop{font-weight:800;font-size:1.05rem}
+.receipt-paper .r-row{display:flex;justify-content:space-between;gap:12px;margin:6px 0}
+.receipt-paper .total{font-weight:800;font-size:1.05rem}
+.receipt-paper hr{border:0;border-top:1px dashed #bbb;margin:10px 0}
+#toast{position:fixed;z-index:40;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--cyan);color:var(--ink);font-weight:800;padding:10px 14px;border-radius:999px;max-width:calc(100% - 24px);text-align:center}
+#print-root{display:none}
+@media (max-width:959px){
+  #cart-panel{position:fixed;z-index:30;left:0;right:0;bottom:0;border-radius:20px 20px 0 0;transform:translateY(105%);visibility:hidden}
+  #cart-panel.open{transform:none;visibility:visible;height:92dvh}
+}
+@media (prefers-reduced-motion:no-preference){
+  #cart-panel{transition:transform .18s ease}
+}
+@media (min-width:800px){
+  .stats{grid-template-columns:repeat(3,1fr)}
+  .stat{display:block}
+  .stat strong{display:block;margin-top:4px}
+  .balances{grid-template-columns:1fr 1fr}
+}
+@media (min-width:960px){
+  body.unlocked{padding-bottom:32px}
+  .nav{position:static;grid-template-columns:repeat(7,1fr);border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden}
+  .nav button{font-size:.92rem}
+  #cart-bar,#close-cart{display:none !important}
+  .sale-layout{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}
+  #cart-panel{position:sticky;top:12px;border-radius:16px;transform:none;visibility:visible;height:calc(100dvh - 24px);max-height:calc(100dvh - 24px)}
+  .products{grid-template-columns:repeat(3,1fr)}
+  #toast{bottom:auto;top:24px}
+}
+@media print{
+  body{background:#fff !important}
+  body > *:not(#print-root){display:none !important}
+  #print-root{display:block !important;background:#fff;color:#000;padding:24px}
+  .receipt-paper,.receipt-paper *{color:#000 !important;background:#fff !important}
+}
+</style>
+</head>
+<body>
+  <div id="lock">
+    <div class="lock-card">
+      <picture>
+        <source srcset="../assets/logo.webp" type="image/webp">
+        <img class="logo" src="../assets/logo.jpg" width="180" height="180" alt="شعار مستر روبوت">
+      </picture>
+      <h1>الكاشير</h1>
+      <p class="hint">Mr. Robot | مستر روبوت</p>
+      <p id="lock-help" class="hint"></p>
+      <form id="lock-form" autocomplete="off">
+        <label>
+          <span>الرقم السري</span>
+          <input id="pin" type="password" inputmode="numeric" maxlength="4" autocapitalize="off" autocomplete="current-password" enterkeyhint="done">
+        </label>
+        <label id="pin2-wrap" hidden>
+          <span>مرة ثانية</span>
+          <input id="pin2" type="password" inputmode="numeric" maxlength="4" autocapitalize="off" autocomplete="new-password" enterkeyhint="done">
+        </label>
+        <p id="lock-error" class="error" role="alert"></p>
+        <button id="lock-submit" class="btn primary" type="submit" style="width:100%">دخول</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="app" hidden>
+    <div class="wrap">
+      <header>
+        <img src="../assets/favicon-32.png" width="42" height="42" alt="">
+        <div class="grow">
+          <div class="brand">الكاشير</div>
+          <div id="header-total" title="كاش الليرة وكاش الدولار">كاش</div>
+        </div>
+        <button id="lock-now" class="btn ghost" type="button">قفل</button>
+      </header>
+
+      <div id="backup-banner" class="banner" hidden>
+        <p>في حركات على هالجهاز. نزّل نسخة احتياطية حتى ما تضيع إذا انمسح المتصفح.</p>
+        <button id="banner-export" class="btn primary" type="button">تنزيل نسخة</button>
+      </div>
+      <p id="corrupt-note" class="error" hidden>لقينا بيانات قديمة ما انقرأت، وحطيناها على جنب. إذا عندك نسخة احتياطية استرجعها من الإعدادات.</p>
+
+      <nav class="nav" aria-label="أقسام الكاشير">
+        <button type="button" data-tab="sale" aria-current="page">بيع</button>
+        <button type="button" data-tab="sham">شام كاش</button>
+        <button type="button" data-tab="mega">ميجا</button>
+        <button type="button" data-tab="expense">مصروف</button>
+        <button type="button" data-tab="today">اليوم</button>
+        <button type="button" data-tab="products">البضاعة</button>
+        <button type="button" data-tab="more">إعدادات</button>
+      </nav>
+
+      <section id="panel-sale">
+        <div class="sale-layout">
+          <div>
+            <button id="toggle-quick" class="btn ghost" type="button" aria-expanded="false" aria-controls="quick-form">قطعة مو بالقائمة</button>
+            <form id="quick-form" hidden>
+              <label><span>الاسم</span><input id="quick-name" maxlength="80" autocomplete="off"></label>
+              <label><span>السعر</span><input id="quick-price" inputmode="numeric" autocomplete="off" placeholder="رقم صحيح"></label>
+              <label><span>عملة السعر</span>
+                <select id="quick-cur">
+                  <option value="SYP">ليرة</option>
+                  <option value="USD">دولار</option>
+                </select>
+              </label>
+              <label class="check"><input id="quick-save" type="checkbox"> احفظها بالقائمة</label>
+              <div id="quick-cat-wrap" hidden>
+                <label><span>التصنيف</span><select id="quick-cat"></select></label>
+              </div>
+              <p id="quick-error" class="error"></p>
+              <button class="btn primary" type="submit">أضف للسلة</button>
+            </form>
+            <label><span>دور على قطعة</span><input id="search" autocomplete="off" placeholder="اسم القطعة"></label>
+            <div id="cats" class="chips"></div>
+            <div id="product-grid" class="products"></div>
+          </div>
+
+          <aside id="cart-panel" aria-hidden="true">
+            <div class="cart-head">
+              <h2>السلة</h2>
+              <button id="close-cart" class="btn ghost" type="button">إغلاق</button>
+            </div>
+            <div id="cart-scroll">
+              <div id="cart-lines"></div>
+              <label><span>حسم</span><input id="discount" inputmode="numeric" autocomplete="off" placeholder="0"></label>
+              <p id="discount-error" class="error"></p>
+              <div class="tender-grid">
+                <label><span>كاش ليرة</span><input id="tender-cash-syp" inputmode="numeric" autocomplete="off" placeholder="0"></label>
+                <label><span>كاش دولار</span><input id="tender-cash-usd" inputmode="numeric" autocomplete="off" placeholder="0"></label>
+                <label><span>شام كاش ليرة</span><input id="tender-sham-syp" inputmode="numeric" autocomplete="off" placeholder="0"></label>
+                <label><span>شام كاش دولار</span><input id="tender-sham-usd" inputmode="numeric" autocomplete="off" placeholder="0"></label>
+              </div>
+              <label id="cart-rate-label"><span>سعر الدولار</span><input id="cart-rate" inputmode="numeric" autocomplete="off" placeholder="ليرة مقابل ١ دولار"></label>
+              <label><span>ملاحظة</span><input id="note" maxlength="140" autocomplete="off" placeholder="اختياري، متل اسم الزبون"></label>
+            </div>
+            <div class="cart-foot">
+              <div class="total-line"><span>المجموع</span><strong id="cart-total"></strong></div>
+              <p id="cart-remainder" class="remain"></p>
+              <p id="cart-error" class="error"></p>
+              <button id="checkout" class="btn wa" type="button">تم البيع</button>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="panel-sham" hidden>
+        <h2>شام كاش</h2>
+        <p id="sham-balances" class="hint"></p>
+        <div class="chips" id="sham-modes">
+          <button type="button" class="chip on" data-sham="send">إرسال للزبون</button>
+          <button type="button" class="chip" data-sham="receive">استقبال من الزبون</button>
+          <button type="button" class="chip" data-sham="bill">دفع فاتورة</button>
+          <button type="button" class="chip" data-sham="mega">شحن ميجا</button>
+          <button type="button" class="chip" data-sham="expense">مصروف شخصي</button>
+        </div>
+        <form id="sham-form" class="card" autocomplete="off">
+          <div class="pay" id="sham-cur">
+            <button type="button" class="pay-btn on" data-sham-cur="SYP">ليرة</button>
+            <button type="button" class="pay-btn" data-sham-cur="USD">دولار</button>
+          </div>
+          <label><span id="sham-amount-label">المبلغ</span><input id="sham-amount" inputmode="numeric" autocomplete="off" placeholder="رقم صحيح"></label>
+          <div id="sham-commission-box">
+            <p id="sham-rate-line" class="hint"></p>
+            <label><span>العمولة</span><input id="sham-commission" inputmode="numeric" autocomplete="off" placeholder="تقدر تعدّلها"></label>
+            <p class="hint">١.٥٪ على المليون ليرة أو ١٠٠ دولار، و٣٪ على ١٠٠ ألف ليرة. فينا نعدّل الرقم.</p>
+          </div>
+          <p id="sham-owed" class="remain"></p>
+          <div id="sham-cash-box" class="tender-grid">
+            <label><span id="sham-syp-label">كاش ليرة</span><input id="sham-cash-syp" inputmode="numeric" autocomplete="off" placeholder="0"></label>
+            <label><span id="sham-usd-label">كاش دولار</span><input id="sham-cash-usd" inputmode="numeric" autocomplete="off" placeholder="0"></label>
+          </div>
+          <div id="sham-rate-box">
+            <label><span>سعر الدولار</span><input id="sham-rate" inputmode="numeric" autocomplete="off" placeholder="ليرة مقابل ١ دولار"></label>
+          </div>
+          <label id="sham-note-label"><span id="sham-note-caption">ملاحظة</span><input id="sham-note" maxlength="140" autocomplete="off" placeholder="اختياري"></label>
+          <p id="sham-preview" class="remain"></p>
+          <p id="sham-error" class="error"></p>
+          <button id="sham-submit" class="btn primary" type="submit">تأكيد</button>
+        </form>
+      </section>
+
+      <section id="panel-mega" hidden>
+        <h2>ميجا</h2>
+        <p id="mega-balance" class="hint"></p>
+        <form id="mega-form" class="card" autocomplete="off">
+          <div class="chips" id="mega-kinds">
+            <button type="button" class="chip on" data-mega-kind="شحن رصيد">شحن رصيد</button>
+            <button type="button" class="chip" data-mega-kind="فاتورة">فاتورة</button>
+            <button type="button" class="chip" data-mega-kind="شحن لعبة">شحن لعبة</button>
+          </div>
+          <label><span>رصيد ميجا (بيطلع من ميجا)</span><input id="mega-out" inputmode="numeric" autocomplete="off" placeholder="بالليرة"></label>
+          <div class="pay" id="mega-cur">
+            <button type="button" class="pay-btn on" data-mega-cur="SYP">سعر الزبون بالليرة</button>
+            <button type="button" class="pay-btn" data-mega-cur="USD">سعر الزبون بالدولار</button>
+          </div>
+          <label><span>سعر الزبون</span><input id="mega-price" inputmode="numeric" autocomplete="off" placeholder="رقم صحيح"></label>
+          <div class="tender-grid">
+            <label><span>كاش ليرة</span><input id="mega-cash-syp" inputmode="numeric" autocomplete="off" placeholder="0"></label>
+            <label><span>كاش دولار</span><input id="mega-cash-usd" inputmode="numeric" autocomplete="off" placeholder="0"></label>
+            <label><span>شام كاش ليرة</span><input id="mega-sham-syp" inputmode="numeric" autocomplete="off" placeholder="0"></label>
+            <label><span>شام كاش دولار</span><input id="mega-sham-usd" inputmode="numeric" autocomplete="off" placeholder="0"></label>
+          </div>
+          <label id="mega-rate-label"><span>سعر الدولار</span><input id="mega-rate" inputmode="numeric" autocomplete="off" placeholder="ليرة مقابل ١ دولار"></label>
+          <label><span>ملاحظة</span><input id="mega-note" maxlength="140" autocomplete="off" placeholder="اختياري"></label>
+          <p id="mega-remainder" class="remain"></p>
+          <p id="mega-warn" class="error"></p>
+          <button id="mega-submit" class="btn primary" type="submit">تأكيد</button>
+        </form>
+      </section>
+
+      <section id="panel-expense" hidden>
+        <h2>مصروف</h2>
+        <p class="hint">من كاش الليرة أو الدولار، أو من شام كاش. ميجا مو لهون.</p>
+        <form id="expense-form" class="card" autocomplete="off">
+          <div class="chips" id="exp-sources">
+            <button type="button" class="chip on" data-exp-source="cashSyp">كاش ليرة</button>
+            <button type="button" class="chip" data-exp-source="cashUsd">كاش دولار</button>
+            <button type="button" class="chip" data-exp-source="shamSyp">شام كاش ليرة</button>
+            <button type="button" class="chip" data-exp-source="shamUsd">شام كاش دولار</button>
+          </div>
+          <p id="exp-balance" class="hint"></p>
+          <div class="chips" id="exp-kinds">
+            <button type="button" class="chip on" data-exp-kind="شخصي">شخصي</button>
+            <button type="button" class="chip" data-exp-kind="كهرباء">كهرباء</button>
+            <button type="button" class="chip" data-exp-kind="ماء">ماء</button>
+            <button type="button" class="chip" data-exp-kind="غير ذلك">غير ذلك</button>
+          </div>
+          <label><span>المبلغ</span><input id="exp-amount" inputmode="numeric" autocomplete="off" placeholder="رقم صحيح"></label>
+          <label><span>ملاحظة</span><input id="exp-note" maxlength="140" autocomplete="off" placeholder="اختياري"></label>
+          <p id="exp-warn" class="error"></p>
+          <button class="btn primary" type="submit">سجّل المصروف</button>
+        </form>
+      </section>
+
+      <section id="panel-today" hidden>
+        <h2>الأرصدة</h2>
+        <p class="hint">الرصيد هو العهدة زائد الحركات من وقت ما انحفظت. الحركات القديمة بتضل بالسجل.</p>
+        <p id="today-rate" class="hint"></p>
+        <div id="balance-cards" class="balances"></div>
+        <h2>الحركات</h2>
+        <div id="move-list"></div>
+      </section>
+
+      <section id="panel-products" hidden>
+        <h2>البضاعة</h2>
+        <button id="add-product" class="btn primary" type="button">قطعة جديدة</button>
+        <div id="catalog"></div>
+      </section>
+
+      <section id="panel-more" hidden>
+        <h2>إعدادات</h2>
+        <div class="card">
+          <p>الحسابات بتضل على هالجهاز وما بتنبعت عالإنترنت. إذا مسحت بيانات المتصفح، الحركات بتروح. نزّل نسخة كل كم يوم وخبّيها.</p>
+          <p class="hint">بعد أول فتح، الكاشير بيكمّل يشتغل حتى لو النت قطع.</p>
+          <p id="export-status" class="hint"></p>
+          <button id="export-btn" class="btn primary" type="button">تنزيل نسخة احتياطية</button>
+          <button id="import-btn" class="btn ghost" type="button">استرجاع نسخة</button>
+          <input id="import-file" type="file" accept="application/json,.json" hidden>
+        </div>
+        <div class="card">
+          <p>سعر الدولار</p>
+          <label><span>كم ليرة مقابل ١ دولار</span><input id="usd-rate" inputmode="numeric" autocomplete="off" placeholder="مثلاً ١٠٠٠٠"></label>
+          <p id="rate-error" class="error"></p>
+          <p id="rate-status" class="hint">بنستخدمه لما الدفع يخلط ليرة ودولار. إذا فاضي ما منخمّن سعر.</p>
+        </div>
+        <div class="card">
+          <button id="lock-more" class="btn ghost" type="button">قفل الكاشير</button>
+        </div>
+        <div class="card">
+          <p>مسح كل البضاعة والحركات من هالجهاز.</p>
+          <label><span>اكتب كلمة مسح للتأكيد</span><input id="wipe-word" autocomplete="off"></label>
+          <button id="wipe-btn" class="btn danger" type="button" disabled>مسح كل شي</button>
+        </div>
+        <p class="hint">Mr. Robot | مستر روبوت · دمشق، كورنيش التجارة · 0991008212</p>
+      </section>
+    </div>
+
+    <button id="cart-bar" type="button">السلة فاضية</button>
+    <button id="scrim" type="button" hidden aria-label="إغلاق السلة"></button>
+
+    <dialog id="receipt-dialog">
+      <div id="receipt-paper" class="receipt-paper"></div>
+      <div class="row no-print">
+        <button id="print-receipt" class="btn ghost" type="button">طباعة</button>
+        <button id="share-receipt" class="btn ghost" type="button">مشاركة</button>
+        <button id="close-receipt" class="btn primary" type="button">إغلاق</button>
+      </div>
+    </dialog>
+
+    <dialog id="opening-dialog">
+      <form id="opening-form" autocomplete="off">
+        <h2 id="opening-title">العهدة</h2>
+        <p class="hint">حط المبلغ الموجود فعلاً. من هاللحظة بنبلّش منه، والحركات الجاية بتنضاف أو بتنقص.</p>
+        <label><span>المبلغ</span><input id="opening-amount" inputmode="numeric" autocomplete="off" placeholder="رقم صحيح"></label>
+        <p id="opening-error" class="error"></p>
+        <div class="row">
+          <button class="btn primary" type="submit">حفظ</button>
+          <button id="opening-cancel" class="btn ghost" type="button">إلغاء</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="product-dialog">
+      <form id="product-form" autocomplete="off">
+        <h2 id="product-title">قطعة</h2>
+        <label><span>الاسم</span><input id="pf-name" maxlength="80"></label>
+        <label><span>السعر</span><input id="pf-price" inputmode="numeric" placeholder="رقم صحيح"></label>
+        <label><span>عملة السعر</span>
+          <select id="pf-cur">
+            <option value="SYP">ليرة</option>
+            <option value="USD">دولار</option>
+          </select>
+        </label>
+        <label><span>التصنيف</span><select id="pf-cat"></select></label>
+        <label><span>الكمية بالمحل</span><input id="pf-stock" inputmode="numeric" placeholder="فاضي يعني ما منعد"></label>
+        <p id="pf-error" class="error"></p>
+        <div class="row">
+          <button class="btn primary" type="submit">حفظ</button>
+          <button id="pf-cancel" class="btn ghost" type="button">إلغاء</button>
+          <button id="pf-delete" class="btn danger" type="button" hidden>حذف</button>
+        </div>
+      </form>
+    </dialog>
+  </div>
+
+  <div id="toast" hidden role="status"></div>
+  <div id="print-root"></div>
+  <noscript><p>الكاشير بدو متصفح محدّث وجافاسكربت شغّال.</p></noscript>
+  <script src="core.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
