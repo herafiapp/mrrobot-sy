@@ -1575,7 +1575,9 @@
     });
     if (state.data.pinHash && sessionStorage.getItem("mrrobot-unlocked") === "1") unlock();
     else showLock();
-    if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function () {});
+    if (location.protocol !== "file:" && "serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    }
   }
 
   boot();

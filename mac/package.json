@@ -1,0 +1,14 @@
+{
+  "name": "mrrobot-cashier",
+  "productName": "MrRobotCashier",
+  "version": "1.0.0",
+  "private": true,
+  "main": "main.js",
+  "description": "كاشير مستر روبوت",
+  "devDependencies": {
+    "@electron/packager": "^20.3.0",
+    "electron": "^44.7.0",
+    "png2icons": "^2.0.1",
+    "sharp": "^0.35.5"
+  }
+}
