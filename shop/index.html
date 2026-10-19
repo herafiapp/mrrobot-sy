@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1220" />
+  <title>مستر روبوت | طلب سريع</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --card: #121a2b;
+      --card-2: #182235;
+      --line: rgba(255,255,255,0.08);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #22c55e;
+      --accent-2: #16a34a;
+      --blue: #38bdf8;
+      --danger: #fb7185;
+      --warn: #fbbf24;
+      --radius: 18px;
+      --shadow: 0 18px 50px rgba(0,0,0,0.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", Tahoma, "Noto Sans Arabic", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(34,197,94,0.18), transparent 28%),
+        radial-gradient(circle at top left, rgba(56,189,248,0.12), transparent 26%),
+        var(--bg);
+      padding: 18px 14px 40px;
+    }
+    .wrap { width: min(980px, 100%); margin: 0 auto; }
+    header {
+      display: flex; justify-content: space-between; gap: 12px; align-items: flex-start;
+      margin-bottom: 18px; flex-wrap: wrap;
+    }
+    .brand h1 { margin: 0 0 6px; font-size: clamp(1.45rem, 4vw, 1.9rem); }
+    .brand p { margin: 0; color: var(--muted); line-height: 1.7; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(34,197,94,0.12); color: #86efac;
+      border: 1px solid rgba(34,197,94,0.25);
+      border-radius: 999px; padding: 8px 12px; font-size: 0.85rem; font-weight: 700;
+    }
+    .tabs {
+      display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;
+    }
+    .tab {
+      border: 1px solid var(--line); background: rgba(255,255,255,0.03);
+      color: var(--muted); border-radius: 999px; padding: 10px 14px;
+      font: inherit; font-weight: 700; cursor: pointer;
+    }
+    .tab.active { background: #fff; color: #0b1220; border-color: #fff; }
+    .card {
+      background: linear-gradient(180deg, var(--card), var(--card-2));
+      border: 1px solid var(--line); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 16px; margin-bottom: 14px;
+    }
+    .card h2 { margin: 0 0 12px; font-size: 1.05rem; }
+    .hint { color: var(--muted); font-size: 0.9rem; line-height: 1.7; margin: 0 0 14px; }
+    form { display: grid; gap: 12px; }
+    .row { display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 12px; }
+    label { display: grid; gap: 6px; font-size: 0.9rem; font-weight: 700; color: #cbd5e1; }
+    input, textarea, select {
+      width: 100%; border: 1px solid var(--line); border-radius: 12px;
+      padding: 12px 14px; font: inherit; color: var(--text);
+      background: rgba(255,255,255,0.04); outline: none;
+    }
+    input:focus, textarea:focus { border-color: rgba(56,189,248,0.55); box-shadow: 0 0 0 3px rgba(56,189,248,0.12); }
+    textarea { min-height: 90px; resize: vertical; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    button {
+      appearance: none; border: none; border-radius: 12px; padding: 12px 16px;
+      font: inherit; font-weight: 800; cursor: pointer;
+    }
+    button:active { transform: scale(0.98); }
+    .btn-green { background: var(--accent); color: #052e16; }
+    .btn-green:hover { background: var(--accent-2); color: #fff; }
+    .btn-blue { background: #0284c7; color: #fff; }
+    .btn-ghost { background: rgba(255,255,255,0.08); color: #e2e8f0; }
+    .btn-danger { background: rgba(251,113,133,0.15); color: var(--danger); }
+    .grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px;
+    }
+    .product {
+      border: 1px solid var(--line); border-radius: 16px; padding: 14px;
+      background: rgba(255,255,255,0.03); display: flex; flex-direction: column; gap: 10px;
+    }
+    .product h3 { margin: 0; font-size: 1.05rem; line-height: 1.45; }
+    .price {
+      display: inline-block; background: rgba(56,189,248,0.12); color: var(--blue);
+      border-radius: 999px; padding: 5px 10px; font-weight: 800; font-size: 0.9rem;
+    }
+    .desc { margin: 0; color: var(--muted); line-height: 1.7; flex: 1; white-space: pre-wrap; word-break: break-word; }
+    .empty {
+      text-align: center; color: var(--muted); padding: 34px 12px;
+      border: 1px dashed var(--line); border-radius: 16px;
+    }
+    .admin-lock {
+      display: none; gap: 10px; align-items: end;
+    }
+    .admin-lock.show { display: grid; }
+    .toast {
+      position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%) translateY(16px);
+      background: #020617; color: #fff; border: 1px solid var(--line);
+      padding: 12px 16px; border-radius: 999px; opacity: 0; pointer-events: none;
+      transition: .2s ease; z-index: 30; font-size: .9rem;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .hidden { display: none !important; }
+    .foot {
+      margin-top: 10px; color: var(--muted); font-size: 0.85rem; text-align: center; line-height: 1.7;
+    }
+    @media (max-width: 700px) {
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <h1>مستر روبوت</h1>
+        <p>شوف المنتجات · اطلب على واتساب · ندبّر الدفع شام كاش</p>
+      </div>
+      <div class="pill">طلب سريع بدون سلة معقدة</div>
+    </header>
+
+    <div class="tabs">
+      <button class="tab active" type="button" data-view="shop">المتجر</button>
+      <button class="tab" type="button" data-view="admin">إدارة المنتجات</button>
+    </div>
+
+    <!-- SHOP -->
+    <section id="shopView">
+      <div class="card">
+        <h2>المنتجات المتوفرة</h2>
+        <p class="hint">كبسة «طلب عبر واتساب» وبتنفتح محادثة جاهزة معنا. منكمّل التفاصيل والدفع على واتساب.</p>
+        <div id="shopGrid" class="grid"></div>
+      </div>
+      <p class="foot">واتساب المتجر: +963 991 008 212</p>
+    </section>
+
+    <!-- ADMIN -->
+    <section id="adminView" class="hidden">
+      <div class="card" id="loginCard">
+        <h2>دخول الإدارة</h2>
+        <p class="hint">كلمة سر بسيطة محفوظة على جهازك فقط (مو سيرفر). غيّرها من تحت بعد أول دخول.</p>
+        <form id="loginForm">
+          <label>كلمة السر
+            <input id="adminPass" type="password" placeholder="أدخل كلمة السر" required />
+          </label>
+          <div class="actions">
+            <button class="btn-blue" type="submit">دخول</button>
+          </div>
+        </form>
+        <p class="hint" style="margin-top:12px;margin-bottom:0">الافتراضي أول مرة: <b>mrrobot</b></p>
+      </div>
+
+      <div id="adminPanel" class="hidden">
+        <div class="card">
+          <h2>إضافة / تعديل منتج</h2>
+          <form id="productForm">
+            <div class="row">
+              <label>اسم المنتج
+                <input id="name" required placeholder="مثال: آيفون 13" />
+              </label>
+              <label>السعر (ل.س أو كما تريد)
+                <input id="price" type="number" min="0" step="1" required placeholder="مثال: 2500000" />
+              </label>
+            </div>
+            <label>الوصف
+              <textarea id="description" required placeholder="حالة الجهاز، الملحقات، ملاحظات..."></textarea>
+            </label>
+            <div class="actions">
+              <button class="btn-green" type="submit">حفظ المنتج</button>
+              <button class="btn-ghost" type="button" id="resetForm">مسح</button>
+              <button class="btn-ghost" type="button" id="logoutBtn">خروج من الإدارة</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2>تغيير كلمة سر الإدارة</h2>
+          <form id="passForm" class="row" style="align-items:end">
+            <label>كلمة سر جديدة
+              <input id="newPass" type="password" minlength="4" required placeholder="4 أحرف على الأقل" />
+            </label>
+            <button class="btn-blue" type="submit">حفظ الكلمة</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2>كل المنتجات</h2>
+          <div id="adminList" class="grid"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const WA_NUMBER = "963991008212"; // wa.me without +
+    const PRODUCTS_KEY = "mrrobot-simple-store-products-v1";
+    const PASS_KEY = "mrrobot-simple-store-pass-v1";
+    const AUTH_KEY = "mrrobot-simple-store-auth-v1";
+    const DEFAULT_PASS = "mrrobot";
+    const PRODUCTS_URL = "./products.json";
+    // After Cloudflare Worker is live, set API_BASE to same origin "/api"
+    const API_BASE = ""; // e.g. "" or "/api"
+
+    const shopView = document.getElementById("shopView");
+    const adminView = document.getElementById("adminView");
+    const shopGrid = document.getElementById("shopGrid");
+    const adminList = document.getElementById("adminList");
+    const loginCard = document.getElementById("loginCard");
+    const adminPanel = document.getElementById("adminPanel");
+    const toastEl = document.getElementById("toast");
+
+    function toast(msg) {
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => toastEl.classList.remove("show"), 1800);
+    }
+
+    function getPass() {
+      return localStorage.getItem(PASS_KEY) || DEFAULT_PASS;
+    }
+
+    function isAuthed() {
+      return sessionStorage.getItem(AUTH_KEY) === "1";
+    }
+
+    function setAuthed(v) {
+      if (v) sessionStorage.setItem(AUTH_KEY, "1");
+      else sessionStorage.removeItem(AUTH_KEY);
+    }
+
+    let productsCache = [];
+
+    function loadProducts() {
+      return productsCache;
+    }
+
+    function saveProducts(list) {
+      productsCache = list;
+      localStorage.setItem(PRODUCTS_KEY, JSON.stringify(list));
+    }
+
+    async function refreshProducts() {
+      // Prefer shared products.json so every visitor sees the same catalog
+      try {
+        const res = await fetch(PRODUCTS_URL + "?t=" + Date.now(), { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            productsCache = data;
+            localStorage.setItem(PRODUCTS_KEY, JSON.stringify(data));
+            return productsCache;
+          }
+        }
+      } catch (e) {}
+      try {
+        const raw = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || "[]");
+        productsCache = Array.isArray(raw) ? raw : [];
+      } catch {
+        productsCache = [];
+      }
+      return productsCache;
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function formatPrice(n) {
+      return Number(n).toLocaleString("ar-SY") + " ل.س";
+    }
+
+    function waLink(product) {
+      const text =
+        "مرحبا مستر روبوت 👋\n" +
+        "بدي أطلب هالمنتج:\n" +
+        "• الاسم: " + product.name + "\n" +
+        "• السعر: " + formatPrice(product.price) + "\n" +
+        (product.description ? "• الوصف: " + product.description + "\n" : "") +
+        "\nتواصلوا معي لإكمال الطلب والدفع شام كاش.";
+      return "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent(text);
+    }
+
+    function renderShop() {
+      const products = loadProducts();
+      if (!products.length) {
+        shopGrid.innerHTML = '<div class="empty">ما في منتجات معروضة حالياً.</div>';
+        return;
+      }
+      shopGrid.innerHTML = products.map((p) => `
+        <article class="product">
+          <h3>${escapeHtml(p.name)}</h3>
+          <span class="price">${escapeHtml(formatPrice(p.price))}</span>
+          <p class="desc">${escapeHtml(p.description || "")}</p>
+          <a class="btn-green" style="text-align:center;text-decoration:none;display:block"
+             href="${waLink(p)}" target="_blank" rel="noopener">طلب عبر واتساب</a>
+        </article>
+      `).join("");
+    }
+
+    function renderAdmin() {
+      const products = loadProducts();
+      if (!products.length) {
+        adminList.innerHTML = '<div class="empty">لا منتجات بعد. أضف من النموذج أعلاه.</div>';
+        return;
+      }
+      adminList.innerHTML = products.map((p) => `
+        <article class="product">
+          <h3>${escapeHtml(p.name)}</h3>
+          <span class="price">${escapeHtml(formatPrice(p.price))}</span>
+          <p class="desc">${escapeHtml(p.description || "")}</p>
+          <button class="btn-danger" type="button" data-del="${escapeHtml(p.id)}">حذف</button>
+        </article>
+      `).join("");
+    }
+
+    function showView(name) {
+      document.querySelectorAll(".tab").forEach((t) => {
+        t.classList.toggle("active", t.getAttribute("data-view") === name);
+      });
+      shopView.classList.toggle("hidden", name !== "shop");
+      adminView.classList.toggle("hidden", name !== "admin");
+      if (name === "admin") {
+        const ok = isAuthed();
+        loginCard.classList.toggle("hidden", ok);
+        adminPanel.classList.toggle("hidden", !ok);
+        if (ok) renderAdmin();
+      }
+    }
+
+    document.querySelectorAll(".tab").forEach((tab) => {
+      tab.addEventListener("click", () => showView(tab.getAttribute("data-view")));
+    });
+
+    document.getElementById("loginForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const pass = document.getElementById("adminPass").value;
+      if (pass === getPass()) {
+        setAuthed(true);
+        document.getElementById("adminPass").value = "";
+        showView("admin");
+        toast("تم الدخول");
+      } else {
+        toast("كلمة السر غلط");
+      }
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      setAuthed(false);
+      showView("admin");
+      toast("تم الخروج");
+    });
+
+    document.getElementById("passForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const p = document.getElementById("newPass").value.trim();
+      if (p.length < 4) return toast("كلمة السر قصيرة");
+      localStorage.setItem(PASS_KEY, p);
+      document.getElementById("newPass").value = "";
+      toast("تم تغيير كلمة السر");
+    });
+
+    document.getElementById("productForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = document.getElementById("name").value.trim();
+      const price = Number(document.getElementById("price").value);
+      const description = document.getElementById("description").value.trim();
+      if (!name || !description || Number.isNaN(price) || price < 0) {
+        toast("تحقق من البيانات");
+        return;
+      }
+      const list = loadProducts();
+      list.unshift({
+        id: (crypto.randomUUID && crypto.randomUUID()) || String(Date.now()),
+        name, price, description,
+        createdAt: new Date().toISOString()
+      });
+      saveProducts(list);
+      e.target.reset();
+      renderAdmin();
+      renderShop();
+      toast("تم الحفظ على هذا الجهاز — المزامنة العامة بعد ربط Cloudflare");
+      // Keep a downloadable products.json for us to publish until API exists
+      try {
+        const blob = new Blob([JSON.stringify(list, null, 2)], { type: "application/json" });
+        window.__lastProductsBlob = blob;
+      } catch(e) {}
+    });
+
+    document.getElementById("resetForm").addEventListener("click", () => {
+      document.getElementById("productForm").reset();
+    });
+
+    adminList.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-del]");
+      if (!btn) return;
+      const id = btn.getAttribute("data-del");
+      saveProducts(loadProducts().filter((p) => p.id !== id));
+      renderAdmin();
+      renderShop();
+      toast("تم الحذف");
+    });
+
+    refreshProducts().then(() => {
+      renderShop();
+      showView("shop");
+    });
+  </script>
+</body>
+</html>
